@@ -1,121 +1,128 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Occhio Umano Interattivo</title>
+<meta charset="UTF-8">
+<title>Occhio Umano 3D</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #000;
+  }
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      text-align: center;
-      padding: 20px;
-    }
-
-    h1 {
-      margin-bottom: 5px;
-    }
-
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .eye {
-      width: 400px;
-      cursor: pointer;
-    }
-
-    .part {
-      fill: #ddd;
-      stroke: #333;
-      stroke-width: 2;
-      transition: fill 0.3s;
-    }
-
-    .part:hover {
-      fill: #9ecbff;
-    }
-
-    .part.active {
-      fill: #4da3ff;
-    }
-
-    .info {
-      width: 260px;
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: left;
-    }
-
-    .info h2 {
-      margin-top: 0;
-    }
-  </style>
+  #info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 260px;
+  }
+</style>
 </head>
 <body>
 
-<h1>Occhio Umano</h1>
-<p>Clicca su una parte per studiarla</p>
-
-<div class="container">
-
-  <!-- SVG interattivo -->
-  <svg viewBox="0 0 400 200" class="eye">
-
-    <!-- Sclera -->
-    <ellipse cx="200" cy="100" rx="180" ry="80"
-      class="part"
-      data-name="Sclera"
-      data-info="La sclera è la parte bianca dell'occhio. Protegge e mantiene la forma del bulbo oculare." />
-
-    <!-- Iride -->
-    <circle cx="200" cy="100" r="45"
-      class="part"
-      data-name="Iride"
-      data-info="L'iride è la parte colorata dell'occhio e regola la quantità di luce che entra." />
-
-    <!-- Pupilla -->
-    <circle cx="200" cy="100" r="20"
-      class="part"
-      data-name="Pupilla"
-      data-info="La pupilla è l'apertura centrale che permette alla luce di entrare nell'occhio." />
-
-  </svg>
-
-  <!-- Pannello informazioni -->
-  <div class="info">
-    <h2 id="part-name">Seleziona una parte</h2>
-    <p id="part-info">Le informazioni appariranno qui.</p>
-  </div>
-
+<div id="info">
+  <h3>Occhio umano 3D</h3>
+  <p>Usa il mouse per ruotare e zoomare.</p>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
 <script>
-  const parts = document.querySelectorAll(".part");
-  const nameBox = document.getElementById("part-name");
-  const infoBox = document.getElementById("part-info");
+/* SCENA */
+const scene = new THREE.Scene();
 
-  parts.forEach(part => {
-    part.addEventListener("click", () => {
+/* CAMERA */
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(0, 0, 6);
 
-      // Rimuove evidenziazione precedente
-      parts.forEach(p => p.classList.remove("active"));
+/* RENDER */
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-      // Evidenzia la parte selezionata
-      part.classList.add("active");
+/* CONTROLLI */
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
 
-      // Aggiorna info
-      nameBox.textContent = part.dataset.name;
-      infoBox.textContent = part.dataset.info;
-    });
-  });
+/* LUCI */
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const light = new THREE.DirectionalLight(0xffffff, 0.8);
+light.position.set(5, 5, 5);
+scene.add(light);
+
+/* === OCCHIO === */
+
+// Corpo vitreo (gelatina)
+const vitreous = new THREE.Mesh(
+  new THREE.SphereGeometry(1.0, 64, 64),
+  new THREE.MeshPhongMaterial({
+    color: 0x88ccff,
+    transparent: true,
+    opacity: 0.2
+  })
+);
+scene.add(vitreous);
+
+// Retina
+const retina = new THREE.Mesh(
+  new THREE.SphereGeometry(0.95, 64, 64),
+  new THREE.MeshPhongMaterial({
+    color: 0xff6666,
+    side: THREE.BackSide
+  })
+);
+scene.add(retina);
+
+// Macula
+const macula = new THREE.Mesh(
+  new THREE.CircleGeometry(0.18, 32),
+  new THREE.MeshBasicMaterial({ color: 0xaa0000 })
+);
+macula.position.set(0, 0, -0.95);
+scene.add(macula);
+
+// Fovea
+const fovea = new THREE.Mesh(
+  new THREE.SphereGeometry(0.05, 16, 16),
+  new THREE.MeshBasicMaterial({ color: 0x000000 })
+);
+fovea.position.set(0, 0, -0.96);
+scene.add(fovea);
+
+// Nervo ottico
+const opticNerve = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.12, 0.12, 1.2, 32),
+  new THREE.MeshPhongMaterial({ color: 0xffffcc })
+);
+opticNerve.rotation.x = Math.PI / 2;
+opticNerve.position.set(0, 0, -1.6);
+scene.add(opticNerve);
+
+/* ANIMAZIONE */
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+/* RESPONSIVE */
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
 
 </body>
