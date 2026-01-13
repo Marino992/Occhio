@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Occhio Umano Interattivo</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .eye {
+      width: 400px;
+      cursor: pointer;
+    }
+
+    .part {
+      fill: #ddd;
+      stroke: #333;
+      stroke-width: 2;
+      transition: fill 0.3s;
+    }
+
+    .part:hover {
+      fill: #9ecbff;
+    }
+
+    .part.active {
+      fill: #4da3ff;
+    }
+
+    .info {
+      width: 260px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    .info h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Occhio Umano</h1>
+<p>Clicca su una parte per studiarla</p>
+
+<div class="container">
+
+  <!-- SVG interattivo -->
+  <svg viewBox="0 0 400 200" class="eye">
+
+    <!-- Sclera -->
+    <ellipse cx="200" cy="100" rx="180" ry="80"
+      class="part"
+      data-name="Sclera"
+      data-info="La sclera è la parte bianca dell'occhio. Protegge e mantiene la forma del bulbo oculare." />
+
+    <!-- Iride -->
+    <circle cx="200" cy="100" r="45"
+      class="part"
+      data-name="Iride"
+      data-info="L'iride è la parte colorata dell'occhio e regola la quantità di luce che entra." />
+
+    <!-- Pupilla -->
+    <circle cx="200" cy="100" r="20"
+      class="part"
+      data-name="Pupilla"
+      data-info="La pupilla è l'apertura centrale che permette alla luce di entrare nell'occhio." />
+
+  </svg>
+
+  <!-- Pannello informazioni -->
+  <div class="info">
+    <h2 id="part-name">Seleziona una parte</h2>
+    <p id="part-info">Le informazioni appariranno qui.</p>
+  </div>
+
+</div>
+
+<script>
+  const parts = document.querySelectorAll(".part");
+  const nameBox = document.getElementById("part-name");
+  const infoBox = document.getElementById("part-info");
+
+  parts.forEach(part => {
+    part.addEventListener("click", () => {
+
+      // Rimuove evidenziazione precedente
+      parts.forEach(p => p.classList.remove("active"));
+
+      // Evidenzia la parte selezionata
+      part.classList.add("active");
+
+      // Aggiorna info
+      nameBox.textContent = part.dataset.name;
+      infoBox.textContent = part.dataset.info;
+    });
+  });
+</script>
+
+</body>
+</html>
